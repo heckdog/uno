@@ -1,14 +1,23 @@
 # another quality program
 import random
 
-cards = ["1 RED"]
-
 
 def main():
     print_header()
     deck = get_deck()
-    for card in deck:
-        print(card)
+    # for card in deck:
+    #     print(card)
+    player_count = input("How many players? (2-5) ")
+    try:
+        if int(player_count) <= 5 and int(player_count) >= 2:
+            print("Valid!")
+        else:
+            print("Invalid, you get 2.")
+            player_count = 2
+    except TypeError:
+        print("Invalid. Setting Players to 2")
+        player_count = 2
+    # TODO: give each player (for player_count) 7 cards from deck
 
 
 def print_header():
