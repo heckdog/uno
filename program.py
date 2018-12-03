@@ -74,7 +74,7 @@ def game():
 
         # CARD CHECK
         # Wildcard
-        if card_choice[:4] == "WILDCARD":
+        if card_choice[:4] == "WILD":
             print("Wild Card! What is the new Color?")
             print("note: this dont do anything yet")
             # TODO: set the color
