@@ -3,7 +3,6 @@ import random
 from time import sleep
 
 
-
 def main():
     print_header()
 
@@ -40,17 +39,19 @@ def game():
         else:
             print("Invalid, you get 2.")
             player_count = 2
-    except TypeError:
+    except:
         print("Invalid. Setting Players to 2")
         player_count = 2
     # TODO: give each player (for player_count) 7 cards from deck
+
+    bots = {}
     # Setting Bot Decks
     for p in range(player_count):
         cards = []  # start with empty hand
         for i in range(7):
             card = deck.pop(0)
             cards.append(card)  # add card to hand
-        bot = Bot(cards, p+2)  # initialize with cards as deck, player+1 as number
+        bots["Bot {}".format(p+1)] = cards  # adds new cards for bot
 
     # Setting User Deck
     cards = []
@@ -61,44 +62,189 @@ def game():
 
     discard = []
     discard.append(deck.pop(0))
+    # Anti Wildcard for the start card.
+    check = True
+    while check:
+        if "WILDCARD" == discard[-1] or "WILD +4" == discard[-1]:
+            discard.append(deck.pop)
+        else:
+            check = False
 
-    # game
+    # game variables initialized
     active = True
+    wild = False
+    wild_color = None
+    valid = False
+    reverse = False
+    # game
     while active:
-        print("The current card is {}".format(discard[-1]))  # discard[-1] is the last added card.
+        print("\nThe current card is {}".format(discard[-1]))  # discard[-1] is the last added card.
+        split = discard[-1].find(" ")
+        current_color = discard[-1][:split]  # grabs color
+        current_number = discard[-1][split + 1:]  # grabs number
         sleep(1)
+
+        if wild:
+            wild = False
+            current_color = wild_color
+            print("The Wild Card's color is {}".format(current_color))
+
         print("You have {} cards. They are:".format(len(player.hand)))
         for card in player.hand:
             print(card)
-        card_choice = input("Which card will you deploy? (type in caps like shown above) \n>>>").strip()
+        card_choice = input("Which card will you deploy? (type 'draw' to get a new card) \n>>>").strip().upper()
 
         # CARD CHECK
-        # Wildcard
-        if card_choice[:4] == "WILD":
-            print("Wild Card! What is the new Color?")
-            print("note: this dont do anything yet")
-            # TODO: set the color
-            if card_choice == "WILD +4":
-                print("The Next player draws 4 cards!")
-                # TODO: make the next player draw cards from deck.pop(0)
+        if card_choice == "DRAW":
+            if deck:
+                new_card = deck.pop(0)
+                player.hand.append(new_card)  # grab top card from deck
+                print("Drew a {}.".format(new_card))
+
+            else:
+                print("No more cards! Shuffling...")
+                deck = discard[:-2]  # all but top card
+                random.shuffle(deck)
+
+        elif card_choice in player.hand:  # duh, gotta see if the card actually exists
+
+            # Wildcard
+            if card_choice == "WILDCARD" or card_choice == "WILD +4":
+                print("Wild Card! What is the new Color?")
+                # TODO: set the color
+                wild = True
+                check = True
+                valid = True
+                while check:
+                    wild_color = input("[BLUE][YELLOW][RED][GREEN]\n>>>").lower().strip()
+
+                    # set wild color
+                    if wild_color == "blue" or wild_color == "red" or wild_color == "green" or wild_color == "yellow":
+                        wild_color = wild_color.upper()
+                        check = False
+                    else:
+                        print("That's not a color! Try again.")
+
+                if card_choice == "WILD +4":
+                    print("The Next player draws 4 cards!")
+                    # TODO: make the next player draw cards from deck.pop(0)
+            # Other Cards
+            else:
+                split = card_choice.find(" ")
+                card_color = card_choice[:split]
+                card_number = card_choice[split + 1:]
+
+                if card_color == current_color:
+                    print("Valid!")
+                    valid = True
+                elif card_number == current_number:
+                    print("Valid!")
+                    valid = True
+                elif card_number == "SKIP" and (card_color == current_color or card_number == current_number):
+                    print("Skipped next player.")
+                    print("note: this dont do anything yet.")
+                    valid = True
+                elif card_number == "REVERSE" and (card_color == current_color or card_number == current_number):
+                    print("The order is reversed!")
+                    if reverse:
+                        reverse = False
+                    else:
+                        reverse = True
+                    valid = True
+                elif card_number == "DRAW 2" and (card_color == current_color or card_number == current_number):
+                    print("The next player draws 2 cards!")
+                    print("note, this dont do anything yet")
+                    valid = True
+                elif card_choice == "DRAW":
+                    pass  # this is to avoid the below
+                else:
+                    print("{} doesn't seem like a real card, bub".format(card_choice))
+
+        if valid:
+            valid = False
+            c_spot = player.hand.index(card_choice)
+            used_card = player.hand.pop(c_spot)
+            discard.append(used_card)
+
+        if len(player.hand) == 0:
+            active = False
+            print("You win! Congratulations!")
+            break
+        elif len(player.hand) == 1:
+            print("Uno!")
+
+        if not reverse:
+            for bot in bots:
+                current_card = discard[-1]
+                bot_cards = bots[bot]
+                print("\nThe Card is {}".format(current_card))
+                print("{}, what do you do?".format(bot))
+                sleep(2)
+
+                if len(bot_cards) > 0:
+                    if len(bot_cards) == 1:
+                        print("{} says: 'Uno!'".format(bot))
+
+                    bot_card = use_card(current_card, bot_cards, discard)
+                    # TODO: check to see if the bot used a special card. make function called "card_check"
+                    if bot_card is not None:
+                        print("{} used {}.".format(bot, bot_card))
+                        if len(bot) == 0:
+                            print("{} has won the game!".format(bot))
+                            break
+                    else:
+                        print("{} drew a card.".format(bot))
+                        bots[bot].append(deck.pop(0))
+                elif len(bot_cards) == 0:
+                    print("{} has won the game!".format(bot))
+                    active = False
+                    break
+                sleep(1)
+        # TODO: make it a function or something to not have the same code twice after this else
         else:
-            split = card_choice.find(" ")
-            card_color = card_choice[:split]
-            # TODO: compare to discard color (and check for wild color)
+            for bot in reversed(bots):
+                current_card = discard[-1]
+                bot_cards = bots[bot]
+                print("\nThe Card is {}".format(current_card))
+                print("{}, what do you do?".format(bot))
+                sleep(1.5)
+
+                if len(bot_cards) > 0:
+                    if len(bot_cards) == 1:
+                        print("{} says: 'Uno!'".format(bot))
+
+                    bot_card = use_card(current_card, bot_cards, discard)
+                    # TODO: check to see if the bot used a special card. make function called "card_check"
+                    if bot_card is not None:
+                        print("{} used {}.".format(bot, bot_card))
+                        if len(bot_cards) == 0:
+                            print("{} has won the game!".format(bot))
+                            active = False
+                            break
+                    else:
+                        print("{} drew a card.".format(bot))
+                        bots[bot].append(deck.pop(0))
+                elif len(bot_cards) == 0:
+                    print("{} has won the game!".format(bot))
+                    break
+                sleep(1)
+
+
 
 
 def print_header():
-    print("--------------------------------------")
-    print(" ■■   ■■    ■■    ■■     ■■■■■■■")
+    print("----------------------------------")
+    print(" ■■   ■■    ■■    ■■    ■■■■■■■■")
     print(" ■■   ■■    ■■■   ■■    ■■    ■■")
     print(" ■■   ■■    ■■■■  ■■    ■■    ■■")
     print(" ■■   ■■    ■■ ■■ ■■    ■■    ■■")
     print(" ■■   ■■    ■■  ■■■■    ■■    ■■")
-    print(" ■■   ■■    ■■    ■■■    ■■    ■■")
-    print(" ■■■■■■    ■■     ■■     ■■■■■■■")
-    print("---------------------------------------")
+    print(" ■■   ■■    ■■    ■■    ■■    ■■")
+    print(" ■■■■■■■    ■■    ■■    ■■■■■■■■")
+    print("----------------------------------")
 
 
+# Deck Generation + Shuffling
 def get_deck():
     deck = []
     # The below just creates the deck.
@@ -135,10 +281,36 @@ class Player:
         self.number = 1
 
 
-class Bot:
-    def __init__(self, hand, number):
-        self.hand = hand
-        self.number = number
+def use_card(current_card, hand, pile):
+    split = current_card.find(" ")
+    current_color = current_card[:split]
+    current_number = current_card[split + 1:]
+
+    for card in hand:
+        split = card.find(" ")
+        card_color = card[:split]
+        card_number = card[split + 1:]
+
+        if card_number == "SKIP" and (card_color == current_color or card_number == current_number):
+            print("Skipped next player.")
+            print("note: this dont do anything yet.")
+            break
+        elif card_number == "REVERSE" and (card_color == current_color or card_number == current_number):
+            print("The order is reversed!")
+            break
+        elif card_number == "DRAW 2" and (card_color == current_color or card_number == current_number):
+            print("The next player draws 2 cards!")
+            print("note, this dont do anything yet")
+            break
+        elif card_color == current_color:
+            break
+        elif card_number == current_number:
+            break
+        elif card == hand[-1]:
+            return None
+
+    pile.append(hand.pop(hand.index(card)))
+    return card
 
 
 if __name__ == "__main__":
