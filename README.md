@@ -6,3 +6,14 @@ you can now win against yourself. there are no bots yet and REVERSE, DRAW 2, and
 
 ## update 2 (12/5)
 You can now play against 2 to 5 bots. That's all the customizability right now. You can also play the game and they can now win against you. DRAW 2/4, and SKIP still dont do anything, WILDCARDS still work, but are broken for the bots, and REVERSE cards *should* work, but I think they are still broken on the bots. Reverse code also inst that great. The end.
+
+## update 3 (12/6)
+**IN PROGRESS**
+
+* use_card() now returns tuples allowing for bots to use abilities such as skip and reverse and draw 2/4, as well as wild
+* **BROKEN** using a reverse card crashes the game.
+
+*__WIP__*
+* fixing statuses
+* adding abilities
+* possible "smartness" of choosing wild cards for bots, where they count up their colors before choosing or something instead of being random
