@@ -2,6 +2,8 @@
 
 #LATEST CHANGES:
 #(12/6) added reverses and status to use_card(), something seems broken tho...
+#(12/12) wildcards now work. skips SHOULD work, reverses dont sadly
+# TODO: see if you can fix above.
 import random
 from time import sleep
 
@@ -47,14 +49,18 @@ def game():
         player_count = 2
     # TODO: give each player (for player_count) 7 cards from deck
 
-    bots = {}
+    bots = [[],[]]
+    bot_names = bots[0]
+    bot_decks = bots[1]
     # Setting Bot Decks
     for p in range(player_count):
         cards = []  # start with empty hand
         for i in range(7):
             card = deck.pop(0)
             cards.append(card)  # add card to hand
-        bots["Bot {}".format(p+1)] = cards  # adds new cards for bot
+        # bots["Bot {}".format(p+1)] = cards  # adds new cards for bot
+        bot_names.append("Bot {}".format(p+1))
+        bot_decks.append(cards)
 
     # Setting User Deck
     cards = []
@@ -81,6 +87,7 @@ def game():
     wild_color = None
     valid = False
     reverse = False
+    skip = False
     # game
     while active:
         print("\nThe current card is {}".format(discard[-1]))  # discard[-1] is the last added card.
@@ -141,8 +148,9 @@ def game():
 
                 if card_number == "SKIP" and (card_color == current_color or card_number == current_number):
                     print("Skipped next player.")
-                    print("note: this dont do anything yet.")
+                    skip = True
                     valid = True
+                # TODO: the below isnt working.
                 elif card_number == "REVERSE" and (card_color == current_color or card_number == current_number):
                     print("The order is reversed!")
                     if reverse:
@@ -153,6 +161,7 @@ def game():
                 elif card_number == "DRAW 2" and (card_color == current_color or card_number == current_number):
                     print("The next player draws 2 cards!")
                     print("note, this dont do anything yet")
+                    skip = True
                     valid = True
                 elif card_color == current_color:
                     print("Valid!")
@@ -163,7 +172,8 @@ def game():
                 elif card_choice == "DRAW":
                     pass  # this is to avoid the below
                 else:
-                    print("{} doesn't seem like a real card, bub".format(card_choice))
+                    print("{} don't work. gonna need a different card bub.".format(card_choice))
+                    # TODO: make this draw a card.
 
         if valid:
             valid = False
@@ -179,26 +189,34 @@ def game():
         elif len(player.hand) == 1:
             print("Uno!")
 
-        if not reverse:
-            for bot in bots:
-                current_card = discard[-1]
-                bot_cards = bots[bot]
-                print("\nThe Card is {}".format(current_card))
-                print("{}, what do you do?".format(bot))
-                sleep(2)
+        if reverse:
+            bot_names = reversed(bot_names)
+            bot_decks = reversed(bot_decks)
 
+        for bot in range(len(bot_names)):
+
+            current_card = discard[-1]
+            bot_cards = bot_decks[bot]
+            bot_name = bot_names[bot]
+            print("\nThe Card is {}".format(current_card))
+
+            if not skip:
+                print("{}, what do you do?".format(bot_name))
+                sleep(2)
                 if len(bot_cards) > 0:
                     if len(bot_cards) == 1:
                         print("{} says: 'Uno!'".format(bot))
 
-                    bot_card, status = use_card(current_card, bot_cards, discard)
+                    bot_card, status, wild_color = use_card(current_card, bot_cards, discard, wild_color)
                     # TODO: check to see if the bot used a special card. make function called "card_check"
                     if bot_card is not None:
-                        print("{} used {}.".format(bot, bot_card))
+                        print("{} used {}.".format(bot_name, bot_card))
                         if status == "reverse":
                             reverse = True
+                        elif status == "skip":
+                            skip = True
 
-                        if len(bot) == 0:
+                        if len(bot_cards) == 0:
                             print("{} has won the game!".format(bot))
                             break
                     else:
@@ -208,42 +226,10 @@ def game():
                     print("{} has won the game!".format(bot))
                     active = False
                     break
-                sleep(1)
-        # TODO: make it a function or something to not have the same code twice after this else
-        else:
-            for bot in reversed(bots):  # TODO: this doesnt work. try counting bots backwords, maybe use an ordered id list? those are reversable.
-                current_card = discard[-1]
-                bot_cards = bots[bot]
-                print("\nThe Card is {}".format(current_card))
-                print("{}, what do you do?".format(bot))
-                sleep(1.5)
-
-                if len(bot_cards) > 0:
-                    if len(bot_cards) == 1:
-                        print("{} says: 'Uno!'".format(bot))
-
-                    bot_card, status = use_card(current_card, bot_cards, discard)
-                    # TODO: check to see if the bot used a special card. make function called "card_check"
-                    if bot_card is not None:
-                        print("{} used {}.".format(bot, bot_card))
-                        
-                        # if reverse card
-                        if status == "reverse":
-                            reverse = False
-
-                        if len(bot_cards) == 0:
-                            print("{} has won the game!".format(bot))
-                            active = False
-                            break
-                    else:
-                        print("{} drew a card.".format(bot))
-                        bots[bot].append(deck.pop(0))
-                elif len(bot_cards) == 0:
-                    print("{} has won the game!".format(bot))
-                    break
-                sleep(1)
-
-
+            else:
+                skip = False
+                print("{} was skipped!".format(bot_name))
+            sleep(1)
 
 
 def print_header():
@@ -295,11 +281,13 @@ class Player:
         self.number = 1
 
 
-def use_card(current_card, hand, pile):
+def use_card(current_card, hand, pile, wild_color=None):
     split = current_card.find(" ")
     current_color = current_card[:split]
     current_number = current_card[split + 1:]
-    status = None
+    status = "default"
+    if wild_color:
+        current_color = wild_color
 
     for card in hand:
         split = card.find(" ")
@@ -316,7 +304,6 @@ def use_card(current_card, hand, pile):
 
         if card_number == "SKIP" and (card_color == current_color or card_number == current_number):
             print("Skipped next player.")
-            print("note: this dont do anything yet.")
             status = "skip"
             break
         elif card_number == "REVERSE" and (card_color == current_color or card_number == current_number):
@@ -333,10 +320,11 @@ def use_card(current_card, hand, pile):
         elif card_number == current_number:
             break
         elif card == hand[-1]:
-            return None
+            return None, status
 
+    wild_color = None
     pile.append(hand.pop(hand.index(card)))
-    return card, status
+    return card, status, wild_color
 
 
 if __name__ == "__main__":
