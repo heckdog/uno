@@ -208,7 +208,6 @@ def game():
                         print("{} says: 'Uno!'".format(bot))
 
                     bot_card, status, wild_color = use_card(current_card, bot_cards, discard, wild_color)
-                    # TODO: check to see if the bot used a special card. make function called "card_check"
                     if bot_card is not None:
                         print("{} used {}.".format(bot_name, bot_card))
                         if status == "reverse":
@@ -302,7 +301,7 @@ def use_card(current_card, hand, pile, wild_color=None):
                     card_color = random.choice(["BLUE", "RED", "GREEN", "YELLOW"])
             print("Wildcard! New color is {}".format(card_color))
 
-        if card_number == "SKIP" and (card_color == current_color or card_number == current_number):
+        elif card_number == "SKIP" and (card_color == current_color or card_number == current_number):
             print("Skipped next player.")
             status = "skip"
             break
@@ -320,7 +319,7 @@ def use_card(current_card, hand, pile, wild_color=None):
         elif card_number == current_number:
             break
         elif card == hand[-1]:
-            return None, status
+            return None, status, None
 
     wild_color = None
     pile.append(hand.pop(hand.index(card)))
