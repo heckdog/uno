@@ -16,9 +16,10 @@ You can now play against 2 to 5 bots. That's all the customizability right now. 
 
 ## update 4 (12/13)
 * fixed reverses and wildcards.
-* drawing cards and skip cards still dont do anything, but can be used like a number card.
+* ~~drawing cards and skip cards still dont do anything, but can be used like a number card.~~
 * *bug: reverses only apply to bots. you always go after the last bot, no matter what.*
-* *possible bug: bot names dont appear when drawing cards.*
+* ~~*possible bug: bot names dont appear when drawing cards.*~~
+* draw 2 and 4 cards added. skips work on bots
 
 *__WIP__*
 * fixing statuses
