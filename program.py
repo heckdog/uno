@@ -98,101 +98,105 @@ def game():
         current_number = discard[-1][split + 1:]  # grabs number
         sleep(1)
 
-        if wild:
-            wild = False
-            current_color = wild_color
-            print("The Wild Card's color is {}".format(current_color))
+        if not skip:
+            if wild:
+                wild = False
+                current_color = wild_color
+                print("The Wild Card's color is {}".format(current_color))
 
-        print("You have {} cards. They are:".format(len(player.hand)))
-        for card in player.hand:
-            print(card)
-        check = True
-        while check:
-            card_choice = input("Which card will you deploy? (type 'draw' to get a new card) \n>>>").strip().upper()
-            if card_choice in player.hand or card_choice == "DRAW":
-                check = False
-            else:
-                print("That's not a real card! Try again, or draw a card.")
-
-        # CARD CHECK
-        if card_choice == "DRAW":
-            if deck:
-                new_card = deck.pop(0)
-                player.hand.append(new_card)  # grab top card from deck
-                print("Drew a {}.".format(new_card))
-
-            else:
-                print("No more cards! Shuffling...")
-                deck = discard[:-2]  # all but top card
-                random.shuffle(deck)
-
-        elif card_choice in player.hand:  # duh, gotta see if the card actually exists
-
-            # Wildcard
-            if card_choice == "WILDCARD" or card_choice == "WILD +4":
-                print("Wild Card! What is the new Color?")
-                wild = True
-                check = True
-                valid = True
-                while check:
-                    wild_color = input("[BLUE][YELLOW][RED][GREEN]\n>>>").lower().strip()
-
-                    # set wild color
-                    if wild_color == "blue" or wild_color == "red" or wild_color == "green" or wild_color == "yellow":
-                        wild_color = wild_color.upper()
-                        check = False
-                    else:
-                        print("That's not a color! Try again.")
-
-                if card_choice == "WILD +4":
-                    print("The Next player draws 4 cards!")
-                    skip = True
-                    for i in range(4):
-                        if deck:
-                            bots[0][0].append(deck.pop(0))
-                        else:
-                            reshuffle(discard, deck)
-                            bots[0][0].append(deck.pop(0))
-                    # TODO: make the next player draw cards from deck.pop(0)
-            # Other Cards
-            else:
-                split = card_choice.find(" ")
-                card_color = card_choice[:split]
-                card_number = card_choice[split + 1:]
-
-                if card_number == "SKIP" and (card_color == current_color or card_number == current_number):
-                    print("Skipped next player.")
-                    skip = True
-                    valid = True
-                # TODO: the below isnt working.
-                elif card_number == "REVERSE" and (card_color == current_color or card_number == current_number):
-                    print("The order is reversed!")
-                    if reverse:
-                        reverse = False
-                    else:
-                        reverse = True
-                    valid = True
-                elif card_number == "DRAW 2" and (card_color == current_color or card_number == current_number):
-                    print("The next player draws 2 cards!")
-                    for i in range(2):
-                        if deck:
-                            bots[0][0].append(deck[-1])
-                        else:
-                            reshuffle(discard, deck)
-                            bots[0][0].append(deck[-1])
-                    skip = True
-                    valid = True
-                elif card_color == current_color:
-                    print("Valid!")
-                    valid = True
-                elif card_number == current_number:
-                    print("Valid!")
-                    valid = True
-                elif card_choice == "DRAW":
-                    pass  # this is to avoid the below
+            print("You have {} cards. They are:".format(len(player.hand)))
+            for card in player.hand:
+                print(card)
+            check = True
+            while check:
+                card_choice = input("Which card will you deploy? (type 'draw' to get a new card) \n>>>").strip().upper()
+                if card_choice in player.hand or card_choice == "DRAW":
+                    check = False
                 else:
-                    print("{} don't work. gonna need a different card bub.".format(card_choice))
-                    # TODO: make this draw a card.
+                    print("That's not a real card! Try again, or draw a card.")
+
+            # CARD CHECK
+            if card_choice == "DRAW":
+                if deck:
+                    new_card = deck.pop(0)
+                    player.hand.append(new_card)  # grab top card from deck
+                    print("Drew a {}.".format(new_card))
+
+                else:
+                    print("No more cards! Shuffling...")
+                    deck = discard[:-2]  # all but top card
+                    random.shuffle(deck)
+
+            elif card_choice in player.hand:  # duh, gotta see if the card actually exists
+
+                # Wildcard
+                if card_choice == "WILDCARD" or card_choice == "WILD +4":
+                    print("Wild Card! What is the new Color?")
+                    wild = True
+                    check = True
+                    valid = True
+                    while check:
+                        wild_color = input("[BLUE][YELLOW][RED][GREEN]\n>>>").lower().strip()
+
+                        # set wild color
+                        if wild_color == "blue" or wild_color == "red" or wild_color == "green" or wild_color == "yellow":
+                            wild_color = wild_color.upper()
+                            check = False
+                        else:
+                            print("That's not a color! Try again.")
+
+                    if card_choice == "WILD +4":
+                        print("The Next player draws 4 cards!")
+                        skip = True
+                        for i in range(4):
+                            if deck:
+                                bots[0][0].append(deck.pop(0))
+                            else:
+                                reshuffle(discard, deck)
+                                bots[0][0].append(deck.pop(0))
+                        # TODO: make the next player draw cards from deck.pop(0)
+                # Other Cards
+                else:
+                    split = card_choice.find(" ")
+                    card_color = card_choice[:split]
+                    card_number = card_choice[split + 1:]
+
+                    if card_number == "SKIP" and (card_color == current_color or card_number == current_number):
+                        print("Skipped next player.")
+                        skip = True
+                        valid = True
+                    # TODO: the below isnt working.
+                    elif card_number == "REVERSE" and (card_color == current_color or card_number == current_number):
+                        print("The order is reversed!")
+                        if reverse:
+                            reverse = False
+                        else:
+                            reverse = True
+                        valid = True
+                    elif card_number == "DRAW 2" and (card_color == current_color or card_number == current_number):
+                        print("The next player draws 2 cards!")
+                        for i in range(2):
+                            if deck:
+                                bots[0][0].append(deck[-1])
+                            else:
+                                reshuffle(discard, deck)
+                                bots[0][0].append(deck[-1])
+                        skip = True
+                        valid = True
+                    elif card_color == current_color:
+                        print("Valid!")
+                        valid = True
+                    elif card_number == current_number:
+                        print("Valid!")
+                        valid = True
+                    elif card_choice == "DRAW":
+                        pass  # this is to avoid the below
+                    else:
+                        print("{} don't work. gonna need a different card bub.".format(card_choice))
+                        # TODO: make this draw a card.
+        else:
+            print("You have been skipped!")
+            skip = False
 
         if valid:
             valid = False
