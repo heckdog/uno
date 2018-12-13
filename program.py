@@ -3,6 +3,7 @@
 #LATEST CHANGES:
 #(12/6) added reverses and status to use_card(), something seems broken tho...
 #(12/12) wildcards now work. skips SHOULD work, reverses dont sadly
+#(12/13) reverses fixed but wont work in multiplayer. wildcards perfect. skips and draw 2/4 dont work yet but the effect ID is there.
 # TODO: see if you can fix above.
 import random
 from time import sleep
@@ -189,13 +190,17 @@ def game():
         elif len(player.hand) == 1:
             print("Uno!")
 
+        # TODO: put this in the bot loop
         if reverse:
-            bot_names = reversed(bot_names)
-            bot_decks = reversed(bot_decks)
+            bot_names = list(reversed(bot_names))
+            bot_decks = list(reversed(bot_decks))
+            reverse = False
 
         for bot in range(len(bot_names)):
 
             current_card = discard[-1]
+            if wild:
+                current_card = "WILDCARD"
             bot_cards = bot_decks[bot]
             bot_name = bot_names[bot]
             print("\nThe Card is {}".format(current_card))
@@ -207,13 +212,20 @@ def game():
                     if len(bot_cards) == 1:
                         print("{} says: 'Uno!'".format(bot))
 
-                    bot_card, status, wild_color = use_card(current_card, bot_cards, discard, wild_color)
+                    if wild:
+                        bot_card, status, wild_color = use_card(current_card, bot_cards, discard, wild_color)
+                        wild = False
+                    else:
+                         bot_card, status, wild_color = use_card(current_card, bot_cards, discard)
                     if bot_card is not None:
                         print("{} used {}.".format(bot_name, bot_card))
                         if status == "reverse":
                             reverse = True
                         elif status == "skip":
                             skip = True
+                        elif status == "wild":
+                            wild = True
+
 
                         if len(bot_cards) == 0:
                             print("{} has won the game!".format(bot))
@@ -297,9 +309,12 @@ def use_card(current_card, hand, pile, wild_color=None):
             for color in ["BLUE", "RED", "GREEN", "YELLOW"]:
                 if color in hand:
                     card_color = color
+                    wild_color = card_color
                 else:
                     card_color = random.choice(["BLUE", "RED", "GREEN", "YELLOW"])
+                    wild_color = card_color
             print("Wildcard! New color is {}".format(card_color))
+            return "WILDCARD", "wild", wild_color
 
         elif card_number == "SKIP" and (card_color == current_color or card_number == current_number):
             print("Skipped next player.")
