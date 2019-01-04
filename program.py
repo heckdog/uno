@@ -1,4 +1,6 @@
 # another quality program
+# debug mode only shows number of bot cards and the change detector. turn off to reduce clutter.
+debug = False
 
 # LATEST CHANGES:
 # (12/13) reverses fixed but wont work in multiplayer. wildcards perfect.
@@ -89,6 +91,12 @@ def game():
     valid = False
     reverse = False
     skip = False
+    draw_2 = False
+    draw_4 = False
+
+    # start on reversed order check
+    if discard[0].find("REVERSE") != -1:
+        reverse = True
 
     # game
     while active:
@@ -98,7 +106,7 @@ def game():
         current_number = discard[-1][split + 1:]  # grabs number
         sleep(1)
 
-        if not skip:
+        if not skip and not draw_2 and not draw_4:
             if wild:
                 wild = False
                 current_color = wild_color
@@ -146,15 +154,8 @@ def game():
                             print("That's not a color! Try again.")
 
                     if card_choice == "WILD +4":
-                        print("The Next player draws 4 cards!")
-                        skip = True
-                        for i in range(4):
-                            if deck:
-                                bots[0][0].append(deck.pop(0))
-                            else:
-                                reshuffle(discard, deck)
-                                bots[0][0].append(deck.pop(0))
-                        # TODO: make the next player draw cards from deck.pop(0)
+                        print("The next player also draws 4 cards!")
+                        draw_4 = True
                 # Other Cards
                 else:
                     split = card_choice.find(" ")
@@ -175,13 +176,7 @@ def game():
                         valid = True
                     elif card_number == "DRAW 2" and (card_color == current_color or card_number == current_number):
                         print("The next player draws 2 cards!")
-                        for i in range(2):
-                            if deck:
-                                bots[0][0].append(deck[-1])
-                            else:
-                                reshuffle(discard, deck)
-                                bots[0][0].append(deck[-1])
-                        skip = True
+                        draw_2 = True
                         valid = True
                     elif card_color == current_color:
                         print("Valid!")
@@ -194,9 +189,29 @@ def game():
                     else:
                         print("{} don't work. gonna need a different card bub.".format(card_choice))
                         # TODO: make this draw a card.
-        else:
+        elif skip:
             print("You have been skipped!")
             skip = False
+        # TODO: theres a way to simplify the below but honestly i really dont care.
+        elif draw_4:
+            for i in range(4):
+                if deck:
+                    player.hand.append(deck[0])
+                else:
+                    reshuffle(discard, deck)
+                    player.hand.append(deck[0])
+                draw_4 = False
+        elif draw_2:
+            for i in range(2):
+                if deck:
+                    player.hand.append(deck[0])
+                else:
+                    reshuffle(discard, deck)
+                    player.hand.append(deck[0])
+                    draw_2 = False
+        else:
+            print("Hmm.... you really aren't ever supposed to see this text. If you do, say something to the dev."
+                  "@Heckin-Doggo on GitHub. The only way you can see it is if you had a skip and it revoked itself.")
 
         if valid:
             valid = False
@@ -226,14 +241,10 @@ def game():
             bot_cards = bot_decks[bot]
             bot_name = bot_names[bot]
             print("\nThe Card is {}".format(current_card))
+            if debug:
+                print("CARD COUNT: {}".format(len(bot_cards)))
 
-            # Below is for drawing cards. Dont touch.
-            pos = -1
-            if range(len(bot_names))[-1] != bot:
-                pos = 0
-            # ok you can mess with things again
-
-            if not skip:
+            if not skip and not draw_2 and not draw_4:
                 print("{}, what do you do?".format(bot_name))
                 sleep(2)
                 if len(bot_cards) > 0:
@@ -253,39 +264,47 @@ def game():
                             skip = True
                         elif status.find("wild") != -1:
                             wild = True
-                        # ghetto solution
                         elif status == "draw 2":
-                            # TODO: make this work for players.
-                            for i in range(2):
-                                if deck:
-                                    bot_decks[bot+1].append(deck[pos])
-                                else:
-                                    reshuffle(discard, deck)
-                                    bot_decks[bot+1].append(deck[pos])
-                        # ahaha i doubt this will work
+                            draw_2 = True
                         if status == "wild draw 4":
-                            for i in range(4):
-                                if deck:
-                                    bots[0][bot+1].append(deck[pos])
-                                else:
-                                    reshuffle(discard, deck)
-                                    bots[0][bot+1].append(deck[pos])
-
+                            draw_4 = True
 
                         if len(bot_cards) == 0:  # if the bot has no cards left it wins
                             print("{} has won the game!".format(bot))
                             break
                     else:  # if nothing happens, draw a card
                         print("{} drew a card.".format(bot_name))
-                        bots[bot].append(deck.pop(0))
+                        bot_cards.append(deck.pop(0))
                 elif len(bot_cards) == 0:  # This shouldn't happen but if it does heres a solution
                     print("{} has won the game... but this text should never show up!".format(bot))
                     active = False
                     break
-            else: # when skip != False
+            elif skip:
                 skip = False
                 print("{} was skipped!".format(bot_name))
+            elif draw_4:
+                print("{} got straight up yeeted by a WILD +4".format(bot_name))
+                for i in range(4):
+                    if deck:
+                        bot_cards.append(deck.pop(0))
+                    else:
+                        reshuffle(discard, deck)
+                        bot_cards.append(deck.pop(0))
+                    draw_4 = False
+            elif draw_2:
+                print("{} was hit by a draw 2.".format(bot_name))
+                for i in range(2):
+                    if deck:
+                        bot_cards.append(deck.pop(0))
+                    else:
+                        reshuffle(discard, deck)
+                        bot_cards.append(deck.pop(0))
+                    draw_2 = False
             sleep(1)
+
+            # debug check to see if card was actually placed in discard
+            if discard[-1] != current_card and debug:  # "and debug" = debug mode is on
+                print("Card changed!!")
 
 
 # HEY: THIS LOOKS TERRIBLE IN EDITOR SOMETIMES BUT IT WORKS IN TERMINAL. DO NOT MESS WITH print_header().
@@ -371,7 +390,8 @@ def use_card(current_card, hand, pile, wild_color=None):
             print("Wildcard! New color is {}".format(card_color))
             if card == "WILD +4":
                 print("The next player will ALSO draw 4 cards! Rekt!")
-                status == "wild draw 4"
+                # status == "wild draw 4"
+                return "WILD +4", "wild draw 4", wild_color
             return "WILDCARD", "wild", wild_color
 
         # the following just tell the event handler what happens in this function

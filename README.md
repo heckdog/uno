@@ -24,3 +24,7 @@ You can now play against 2 to 5 bots. That's all the customizability right now. 
 * fixing statuses
 * adding abilities
 * possible "smartness" of choosing wild cards for bots, where they count up their colors before choosing or something instead of being random
+
+## update 5 (1/3)
+* fixed card draw issue partially
+* documented many new bugs
