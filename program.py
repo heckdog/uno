@@ -194,20 +194,22 @@ def game():
             skip = False
         # TODO: theres a way to simplify the below but honestly i really dont care.
         elif draw_4:
+            print("...which doesn't matter since you just got hit by a WILD +4.")
             for i in range(4):
                 if deck:
-                    player.hand.append(deck[0])
+                    player.hand.append(deck.pop(0))
                 else:
                     reshuffle(discard, deck)
-                    player.hand.append(deck[0])
+                    player.hand.append(deck.pop(0))
                 draw_4 = False
         elif draw_2:
+            print("...which doesn't matter since you just got hit by a DRAW 2.")
             for i in range(2):
                 if deck:
-                    player.hand.append(deck[0])
+                    player.hand.append(deck.pop(0))
                 else:
                     reshuffle(discard, deck)
-                    player.hand.append(deck[0])
+                    player.hand.append(deck.pop(0))
                     draw_2 = False
         else:
             print("Hmm.... you really aren't ever supposed to see this text. If you do, say something to the dev."
