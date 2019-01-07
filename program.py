@@ -2,10 +2,7 @@
 # debug mode only shows number of bot cards and the change detector. turn off to reduce clutter.
 debug = False
 
-# LATEST CHANGES:
-# (12/13) reverses fixed but wont work in multiplayer. wildcards perfect.
-#  skips and draw 2/4 don't work yet but the effect ID is there.
-# TODO: see if you can fix above.
+# heckin-doggo github has the issues instead of here
 import random
 from time import sleep
 
