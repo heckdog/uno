@@ -1,6 +1,6 @@
 # another quality program
 # debug mode only shows number of bot cards and the change detector. turn off to reduce clutter.
-debug = False
+debug = True
 
 # heckin-doggo github has the issues instead of here
 import random
@@ -348,6 +348,7 @@ def get_deck():
 
 
 # "reshuffle" probably will break and be sad for anyone in a long game :(
+# edit: probably not tbh hasnt failed me yet.
 def reshuffle(discard, deck):
     for card in discard:
         if discard.index(card) != discard.index(discard[-1]):
@@ -387,11 +388,13 @@ def use_card(current_card, hand, pile, wild_color=None):
                     card_color = random.choice(["BLUE", "RED", "GREEN", "YELLOW"])  # rare occurance but still
                     wild_color = card_color
             print("Wildcard! New color is {}".format(card_color))
+            status = "wild"
             if card == "WILD +4":
                 print("The next player will ALSO draw 4 cards! Rekt!")
-                # status == "wild draw 4"
-                return "WILD +4", "wild draw 4", wild_color
-            return "WILDCARD", "wild", wild_color
+                status = "wild draw 4"
+                
+            pile.append(hand.pop(hand.index(card)))
+            return card, status, wild_color
 
         # the following just tell the event handler what happens in this function
         elif card_number == "SKIP" and (card_color == current_color or card_number == current_number):
