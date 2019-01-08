@@ -29,3 +29,6 @@ You can now play against 2 to 5 bots. That's all the customizability right now. 
 * fixed many bugs from the day before
 * drawing cards (WILD +4 and DRAW 2) work now, even on players
 * got rid of bad code that broke a lot of things. dunno why it was even in there to begin with.
+
+## update 7 (1/7)
+* fixed wildcard spam for real this time
