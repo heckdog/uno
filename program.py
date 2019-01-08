@@ -1,6 +1,6 @@
 # another quality program
 # debug mode only shows number of bot cards and the change detector. turn off to reduce clutter.
-debug = True
+debug = False
 
 # heckin-doggo github has the issues instead of here
 import random
