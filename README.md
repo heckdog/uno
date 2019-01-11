@@ -2,7 +2,7 @@
 It's a simple uno card game in Python. It's nothing special. Heck, as of writing this its nothing more than a virtual deck shuffler.
 
 ### LATEST UPDATES
-older updates canbe found in the wiki
+older updates canbe found in the wiki[https://github.com/Heckin-Doggo/uno/wiki/Update-Log]
 
 ## update 5 (1/3)
 * fixed card draw issue partially
