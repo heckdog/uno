@@ -18,5 +18,8 @@ older updates can be found in the [wiki](https://github.com/Heckin-Doggo/uno/wik
 
 ## update 8 (1/11)
 * added colors to title and debug.
-* added options menu
-* **WIP** adding colors to the cards for readability
+* added options menu. supports color and debug toggle. doesn't truly save, however. thats a whole lotta work for nothing
+* added colors to the cards for readability
+* removed `wild` variable, which caused at least 3 issues.
+* data dump added. call it by saying `data dump` in the car selection screen
+* `colorize(text, color)` added
