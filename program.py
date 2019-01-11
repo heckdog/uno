@@ -6,6 +6,11 @@ color_toggle = True
 # heckin-doggo github has the issues instead of here
 import random
 from time import sleep
+try:
+    from colorama import init
+    init()
+except:
+    print("ERROR: Windows CMD Colors failed to load!")
 
 
 def main():
@@ -436,6 +441,7 @@ def use_card(current_card, hand, pile, wild_color=None):  # TODO: see if this wi
     pile.append(hand.pop(hand.index(card)))
     return card, status, wild_color
 
+# WARNING: the code below starts to get pretty messy
 
 # should really be called "debug_print" but whatever. too much work to change it now and im too lazy
 def error_print(text):
@@ -460,6 +466,7 @@ def colorize(text, color):
 
 
 def color_test():
+    # color codes are also at http://ozzmaker.com/add-colour-to-text-in-python/
     for i in range(108):
         print("\033[0;{};0m{}\033[0;0;0m".format(i,i))
 
