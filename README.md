@@ -1,25 +1,8 @@
 # Python Uno
 It's a simple uno card game in Python. It's nothing special. Heck, as of writing this its nothing more than a virtual deck shuffler.
 
-## update 1 (12/4)
-you can now win against yourself. there are no bots yet and REVERSE, DRAW 2, and SKIP cards do nothing yet. WILDCARDS, however, do work.
-
-## update 2 (12/5)
-You can now play against 2 to 5 bots. That's all the customizability right now. You can also play the game and they can now win against you. DRAW 2/4, and SKIP still dont do anything, WILDCARDS still work, but are broken for the bots, and REVERSE cards *should* work, but I think they are still broken on the bots. Reverse code also inst that great. The end.
-
-## update 3 (12/6-12/12)
-
-
-* use_card() now returns tuples allowing for bots to use abilities such as skip and reverse and draw 2/4, as well as wild
-* ~~**BROKEN** using a reverse card crashes the game.~~
-
-
-## update 4 (12/13)
-* fixed reverses and wildcards.
-* drawing cards and skip cards still dont do anything, but can be used like a number card.
-* *bug: reverses only apply to bots. you always go after the last bot, no matter what.*
-~~* *possible bug: bot names dont appear when drawing cards.*~~
-
+### LATEST UPDATES
+older updates can be found in the [wiki](https://github.com/Heckin-Doggo/uno/wiki/Update-Log)
 
 ## update 5 (1/3)
 * fixed card draw issue partially
@@ -32,3 +15,11 @@ You can now play against 2 to 5 bots. That's all the customizability right now. 
 
 ## update 7 (1/7)
 * fixed wildcard spam for real this time
+
+## update 8 (1/11)
+* added colors to title and debug.
+* added options menu. supports color and debug toggle. doesn't truly save, however. thats a whole lotta work for nothing
+* added colors to the cards for readability
+* removed `wild` variable, which caused at least 3 issues.
+* data dump added. call it by saying `data dump` in the car selection screen
+* `colorize(text, color)` added

@@ -1,6 +1,7 @@
 # another quality program
 # debug mode only shows number of bot cards and the change detector. turn off to reduce clutter.
-debug = False
+debug = True
+color_toggle = True
 
 # heckin-doggo github has the issues instead of here
 import random
@@ -8,13 +9,13 @@ from time import sleep
 
 
 def main():
-    print_header()
-
     active = True
 
     while active:
-        print("\nWelcome to Uno! Type your choice!")
-        choice = input("[PLAY] [QUIT]\n>>>").strip().lower()
+        print_header()
+        print("\nWelcome to Uno! Type your choice.")
+        print("NOTE: if the title looks like garbled mess, turn off colors in OPTIONS")
+        choice = input("[PLAY] [QUIT] [OPTIONS]\n>>>").strip().lower()
         # Play
         if choice == "play":
             game()
@@ -28,6 +29,9 @@ def main():
         elif choice == "quit":
             print("Goodbye!")
             active = False
+        elif choice == "options":
+            options()
+
         else:
             print("'{}' not recognized. Please try again.".format(choice))
 
@@ -97,27 +101,31 @@ def game():
 
     # game
     while active:
-        print("\nThe current card is {}".format(discard[-1]))  # discard[-1] is the last added card.
+        # note: color_card(card) returns the card with attached color codes. invalid when color_toggle is False
+        print("\nThe current card is {}".format(color_card(discard[-1])))  # discard[-1] is the last added card.
         split = discard[-1].find(" ")
         current_color = discard[-1][:split]  # grabs color
         current_number = discard[-1][split + 1:]  # grabs number
         sleep(1)
 
         if not skip and not draw_2 and not draw_4:
-            if wild:
-                wild = False
+            if wild_color is not None:
+                # wild = False
                 current_color = wild_color
-                print("The Wild Card's color is {}".format(current_color))
+                print("The Wild Card's color is {}".format(colorize(current_color, current_color)))
 
             print("You have {} cards. They are:".format(len(player.hand)))
             for card in player.hand:
-                print(card)
+                print(color_card(card))
+
             check = True
             while check:
                 card_choice = input("Which card will you deploy? (type 'draw' to get a new card) \n>>>").strip().upper()
                 if card_choice in player.hand or card_choice == "DRAW":
                     check = False
                 else:
+                    if card_choice == "DATA DUMP":
+                        data_dump(bots, player, wild_color, reverse, wild, draw_2, draw_4, skip)
                     print("That's not a real card! Try again, or draw a card.")
 
             # CARD CHECK
@@ -125,12 +133,14 @@ def game():
                 if deck:
                     new_card = deck.pop(0)
                     player.hand.append(new_card)  # grab top card from deck
-                    print("Drew a {}.".format(new_card))
+                    print("Drew a {}.".format(color_card(new_card)))
 
                 else:
                     print("No more cards! Shuffling...")
                     deck = discard[:-2]  # all but top card
                     random.shuffle(deck)
+                    new_card = deck.pop(0)
+                    player.hand.append(new_card)
 
             elif card_choice in player.hand:  # duh, gotta see if the card actually exists
 
@@ -141,7 +151,7 @@ def game():
                     check = True
                     valid = True
                     while check:
-                        wild_color = input("[BLUE][YELLOW][RED][GREEN]\n>>>").lower().strip()
+                        wild_color = input("\033[0;34;0m[BLUE]\033[0;33;0m[YELLOW]\033[0;31;0m[RED]\033[0;32;0m[GREEN]\033[0;0;0m\n>>>").lower().strip()
 
                         # set wild color
                         if wild_color == "blue" or wild_color == "red" or wild_color == "green" or wild_color == "yellow":
@@ -235,13 +245,13 @@ def game():
         for bot in range(len(bot_names)):
 
             current_card = discard[-1]
-            if wild:
+            if wild_color:
                 current_card = "WILDCARD"
             bot_cards = bot_decks[bot]
             bot_name = bot_names[bot]
-            print("\nThe Card is {}".format(current_card))
+            print("\nThe Card is {}".format(color_card(current_card)))
             if debug:
-                print("CARD COUNT: {}".format(len(bot_cards)))
+                error_print("CARD COUNT: {}".format(len(bot_cards)))
 
             if not skip and not draw_2 and not draw_4:
                 print("{}, what do you do?".format(bot_name))
@@ -250,13 +260,13 @@ def game():
                     if len(bot_cards) == 1:
                         print("{} says: 'Uno!'".format(bot))
 
-                    if wild:
-                        bot_card, status, wild_color = use_card(current_card, bot_cards, discard, wild_color)
-                        wild = False
+                    if wild_color:
+                        bot_card, status, wild_color= use_card(current_card, bot_cards, discard, wild_color)
+                        # wild = False # broken maybe
                     else:
                         bot_card, status, wild_color = use_card(current_card, bot_cards, discard)
                     if bot_card is not None:
-                        print("{} used {}.".format(bot_name, bot_card))
+                        print("{} used {}.".format(bot_name, color_card(bot_card)))
                         if status == "reverse":
                             reverse = True
                         elif status == "skip":
@@ -303,20 +313,26 @@ def game():
 
             # debug check to see if card was actually placed in discard
             if discard[-1] != current_card and debug:  # "and debug" = debug mode is on
-                print("Card changed!!")
+                error_print("Card changed!!")
 
 
 # HEY: THIS LOOKS TERRIBLE IN EDITOR SOMETIMES BUT IT WORKS IN TERMINAL. DO NOT MESS WITH print_header().
 def print_header():
     print("----------------------------------")
-    print(" ■■   ■■    ■■    ■■    ■■■■■■■■")
-    print(" ■■   ■■    ■■■   ■■    ■■    ■■")
-    print(" ■■   ■■    ■■■■  ■■    ■■    ■■")
-    print(" ■■   ■■    ■■ ■■ ■■    ■■    ■■")
-    print(" ■■   ■■    ■■  ■■■■    ■■    ■■")
-    print(" ■■   ■■    ■■    ■■    ■■    ■■")
-    print(" ■■■■■■■    ■■    ■■    ■■■■■■■■")
+    print(colorize(" ■■   ■■    ■■    ■■    ■■■■■■■■", "RED"))
+    print(colorize(" ■■   ■■    ■■■   ■■    ■■    ■■", "BLUE"))
+    print(colorize(" ■■   ■■    ■■■■  ■■    ■■    ■■", "GREEN"))
+    print(colorize(" ■■   ■■    ■■ ■■ ■■    ■■    ■■", "YELLOW"))
+    print(colorize(" ■■   ■■    ■■  ■■■■    ■■    ■■", "RED"))
+    print(colorize(" ■■   ■■    ■■    ■■    ■■    ■■", "BLUE"))
+    print(colorize(" ■■■■■■■    ■■    ■■    ■■■■■■■■", "GREEN"))
     print("----------------------------------")
+
+    #print(colorize("test red","RED"))
+    #print(colorize("test blue","BLUE"))
+    #print(colorize("test green","GREEN"))
+    #print(colorize("test yellow","YELLOW"))
+    #color_test()
 
 
 # Deck Generation + Shuffling
@@ -364,7 +380,7 @@ class Player:
         self.number = 1  # abosolutely redundant code.
 
 
-def use_card(current_card, hand, pile, wild_color=None):
+def use_card(current_card, hand, pile, wild_color=None):  # TODO: see if this wild_color = None is breaking things
     # set up for card check
     split = current_card.find(" ")
     current_color = current_card[:split]
@@ -387,7 +403,7 @@ def use_card(current_card, hand, pile, wild_color=None):
                 else:
                     card_color = random.choice(["BLUE", "RED", "GREEN", "YELLOW"])  # rare occurance but still
                     wild_color = card_color
-            print("Wildcard! New color is {}".format(card_color))
+            print("Wildcard! New color is {}".format(colorize(card_color, card_color)))
             status = "wild"
             if card == "WILD +4":
                 print("The next player will ALSO draw 4 cards! Rekt!")
@@ -407,7 +423,6 @@ def use_card(current_card, hand, pile, wild_color=None):
             break
         elif card_number == "DRAW 2" and (card_color == current_color or card_number == current_number):
             print("The next player draws 2 cards!")
-            print("note, this dont do anything yet")
             status = "draw 2"
             break
         elif card_color == current_color:
@@ -415,11 +430,88 @@ def use_card(current_card, hand, pile, wild_color=None):
         elif card_number == current_number:
             break
         elif card == hand[-1]:
-            return None, status, None
+            return None, status, wild_color # THIS PREVENTS THE BELOW FROM FIRING IF NO CARD REPLACES THE WILD
 
-    wild_color = None
+    wild_color = None  # THIS ONE SHOULD ONLY WORK IF THEY DREW A CARD TO REPLACE THE WILD
     pile.append(hand.pop(hand.index(card)))
     return card, status, wild_color
+
+
+# should really be called "debug_print" but whatever. too much work to change it now and im too lazy
+def error_print(text):
+    print("\033[0;35;0m{}\033[0;0;0m".format(text))
+
+
+def colorize(text, color):
+    color = color.upper()
+    new_text = text
+    if color_toggle:
+        if color == "BLUE":
+            new_text = "\033[0;34;0m{}\033[0;0;0m".format(text)
+        elif color == "RED":
+            new_text = "\033[0;31;0m{}\033[0;0;0m".format(text)
+        elif color == "YELLOW":
+            new_text = "\033[0;33;0m{}\033[0;0;0m".format(text)
+        elif color == "GREEN":
+            new_text = "\033[0;32;0m{}\033[0;0;0m".format(text)
+        elif color == "WHITE" or color == "WILD":
+            new_text = "\033[0;30;0m{}\033[0;0;0m".format(text)
+    return new_text
+
+
+def color_test():
+    for i in range(108):
+        print("\033[0;{};0m{}\033[0;0;0m".format(i,i))
+
+
+def options():
+    global color_toggle
+    global debug
+    print("Colors? (turn off if you see garbage/glitch text) (on/off)")
+    choice = input(">>>").lower().strip()
+    if choice == "on":
+        color_toggle = True
+        print("Setting Saved!")
+    elif choice == "off":
+        color_toggle = False
+        print("Setting Saved! (COLORS OFF)")
+    else:
+        print("'{}' not recognized. Setting Colors to Off")
+        color_toggle = False
+
+    print("\nDebug mode? (turn on only if things seem broken) (on/off)")
+    choice = input(">>>").lower().strip()
+    if choice == "on":
+        debug = True
+        print("Setting Saved!")
+    elif choice == "off":
+        debug = False
+        print("Setting Saved! (COLORS OFF)")
+    else:
+        print("'{}' not recognized. Setting Colors to Off")
+        debug = False
+
+
+def color_card(card):
+    split = card.find(" ")
+    color = card[:split]
+    if split != -1:
+        return colorize(card, color)
+    else:
+        return colorize(card, "WHITE")
+
+
+def data_dump(bots, player, wild_color, reverse, wild, draw_2, draw_4, skip):
+    print("\033[0;35;0m")
+    print(bots)
+    print("PLAYER:{}".format(player.hand))
+    print("WILD_COLOR: {}".format(wild_color))
+    print("WILD: {}".format(wild))
+    print("REVERSE: {}".format(reverse))
+    print("DRAW_2: {}".format(draw_2))
+    print("DRAW_4: {}".format(draw_4))
+    print("SKIP: {}".format(skip))
+    print("\033[0;0;0m")
 
 
 if __name__ == "__main__":
