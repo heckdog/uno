@@ -1,6 +1,7 @@
 # another quality program
 # debug mode only shows number of bot cards and the change detector. turn off to reduce clutter.
-debug = False
+debug = True
+color_toggle = True
 
 # heckin-doggo github has the issues instead of here
 import random
@@ -8,13 +9,13 @@ from time import sleep
 
 
 def main():
-    print_header()
-
     active = True
 
     while active:
-        print("\nWelcome to Uno! Type your choice!")
-        choice = input("[PLAY] [QUIT]\n>>>").strip().lower()
+        print_header()
+        print("\nWelcome to Uno! Type your choice.")
+        print("NOTE: if the title looks like garbled mess, turn off colors in OPTIONS")
+        choice = input("[PLAY] [QUIT] [OPTIONS]\n>>>").strip().lower()
         # Play
         if choice == "play":
             game()
@@ -28,6 +29,9 @@ def main():
         elif choice == "quit":
             print("Goodbye!")
             active = False
+        elif choice == "options":
+            options()
+
         else:
             print("'{}' not recognized. Please try again.".format(choice))
 
@@ -131,6 +135,8 @@ def game():
                     print("No more cards! Shuffling...")
                     deck = discard[:-2]  # all but top card
                     random.shuffle(deck)
+                    new_card = deck.pop(0)
+                    player.hand.append(new_card)
 
             elif card_choice in player.hand:  # duh, gotta see if the card actually exists
 
@@ -241,7 +247,7 @@ def game():
             bot_name = bot_names[bot]
             print("\nThe Card is {}".format(current_card))
             if debug:
-                print("CARD COUNT: {}".format(len(bot_cards)))
+                error_print("CARD COUNT: {}".format(len(bot_cards)))
 
             if not skip and not draw_2 and not draw_4:
                 print("{}, what do you do?".format(bot_name))
@@ -303,20 +309,26 @@ def game():
 
             # debug check to see if card was actually placed in discard
             if discard[-1] != current_card and debug:  # "and debug" = debug mode is on
-                print("Card changed!!")
+                error_print("Card changed!!")
 
 
 # HEY: THIS LOOKS TERRIBLE IN EDITOR SOMETIMES BUT IT WORKS IN TERMINAL. DO NOT MESS WITH print_header().
 def print_header():
     print("----------------------------------")
-    print(" ■■   ■■    ■■    ■■    ■■■■■■■■")
-    print(" ■■   ■■    ■■■   ■■    ■■    ■■")
-    print(" ■■   ■■    ■■■■  ■■    ■■    ■■")
-    print(" ■■   ■■    ■■ ■■ ■■    ■■    ■■")
-    print(" ■■   ■■    ■■  ■■■■    ■■    ■■")
-    print(" ■■   ■■    ■■    ■■    ■■    ■■")
-    print(" ■■■■■■■    ■■    ■■    ■■■■■■■■")
+    print(colorize(" ■■   ■■    ■■    ■■    ■■■■■■■■", "RED"))
+    print(colorize(" ■■   ■■    ■■■   ■■    ■■    ■■", "BLUE"))
+    print(colorize(" ■■   ■■    ■■■■  ■■    ■■    ■■", "GREEN"))
+    print(colorize(" ■■   ■■    ■■ ■■ ■■    ■■    ■■", "YELLOW"))
+    print(colorize(" ■■   ■■    ■■  ■■■■    ■■    ■■", "RED"))
+    print(colorize(" ■■   ■■    ■■    ■■    ■■    ■■", "BLUE"))
+    print(colorize(" ■■■■■■■    ■■    ■■    ■■■■■■■■", "GREEN"))
     print("----------------------------------")
+
+    #print(colorize("test red","RED"))
+    #print(colorize("test blue","BLUE"))
+    #print(colorize("test green","GREEN"))
+    #print(colorize("test yellow","YELLOW"))
+    #color_test()
 
 
 # Deck Generation + Shuffling
@@ -420,6 +432,57 @@ def use_card(current_card, hand, pile, wild_color=None):
     wild_color = None
     pile.append(hand.pop(hand.index(card)))
     return card, status, wild_color
+
+def error_print(text):
+    print("\033[0;35;0m{}\033[0;0;0m".format(text))
+
+
+def colorize(text, color):
+    new_text = text
+    if color_toggle:
+        if color == "BLUE":
+            new_text = "\033[0;34;0m{}\033[0;0;0m".format(text)
+        elif color == "RED":
+            new_text = "\033[0;31;0m{}\033[0;0;0m".format(text)
+        elif color == "YELLOW":
+            new_text = "\033[0;33;0m{}\033[0;0;0m".format(text)
+        elif color == "GREEN":
+            new_text = "\033[0;32;0m{}\033[0;0;0m".format(text)
+    return new_text
+
+
+def color_test():
+    for i in range(108):
+        print("\033[0;{};0m{}\033[0;0;0m".format(i,i))
+
+
+def options():
+    global color_toggle
+    global debug
+    print("Colors? (turn off if you see garbage/glitch text) (on/off)")
+    choice = input(">>>").lower().strip()
+    if choice == "on":
+        color_toggle = True
+        print("Setting Saved!")
+    elif choice == "off":
+        color_toggle = False
+        print("Setting Saved! (COLORS OFF)")
+    else:
+        print("'{}' not recognized. Setting Colors to Off")
+        color_toggle = False
+
+    print("\nDebug mode? (turn on only if things seem broken) (on/off)")
+    choice = input(">>>").lower().strip()
+    if choice == "on":
+        debug = True
+        print("Setting Saved!")
+    elif choice == "off":
+        debug = False
+        print("Setting Saved! (COLORS OFF)")
+    else:
+        print("'{}' not recognized. Setting Colors to Off")
+        debug = False
+
 
 
 if __name__ == "__main__":
