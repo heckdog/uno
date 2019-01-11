@@ -84,8 +84,8 @@ def game():
     # Anti Wildcard for the start card.
     check = True
     while check:
-        if "WILDCARD" == discard[-1] or "WILD +4" == discard[-1]:
-            discard.append(deck.pop)
+        if discard[-1] == "WILDCARD" or discard[-1] == "WILD +4":
+            discard.append(deck.pop(0))
         else:
             check = False
 
