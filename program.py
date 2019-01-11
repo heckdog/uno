@@ -147,7 +147,7 @@ def game():
                     check = True
                     valid = True
                     while check:
-                        wild_color = input("[BLUE][YELLOW][RED][GREEN]\n>>>").lower().strip()
+                        wild_color = input("\033[0;34;0m[BLUE]\033[0;33;0m[YELLOW]\033[0;31;0m[RED]\033[0;32;0m[GREEN]\033[0;0;0m\n>>>").lower().strip()
 
                         # set wild color
                         if wild_color == "blue" or wild_color == "red" or wild_color == "green" or wild_color == "yellow":
@@ -434,10 +434,11 @@ def use_card(current_card, hand, pile, wild_color=None):
     return card, status, wild_color
 
 def error_print(text):
-    print("\033[0;35;0m{}\033[0;0;0m".format(text))
+    print("\033[0;35;0m{}\033[0;30;0m".format(text))
 
 
 def colorize(text, color):
+    color = color.upper()
     new_text = text
     if color_toggle:
         if color == "BLUE":
@@ -448,6 +449,8 @@ def colorize(text, color):
             new_text = "\033[0;33;0m{}\033[0;0;0m".format(text)
         elif color == "GREEN":
             new_text = "\033[0;32;0m{}\033[0;0;0m".format(text)
+        elif color == "WHITE" or color == "WILD":
+            new_text = "\033[0;30;0m{}\033[0;0;0m".format(text)
     return new_text
 
 
