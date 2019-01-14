@@ -10,7 +10,7 @@ try:
     from colorama import init
     init()
 except:
-    print("ERROR: Windows CMD Colors failed to load!")
+    print("ERROR: Colorama failed to load!")
 
 
 def main():
@@ -46,7 +46,7 @@ def game():
 
     player_count = input("How many players? (2-5) ")
     try:
-        if int(player_count) <= 5 >= 2:  # the <= 5 >= 2 works as a double check.
+        if int(player_count) <= 5 and int(player_count) >= 2:  
             player_count = int(player_count)
             print("Valid!")
         else:
