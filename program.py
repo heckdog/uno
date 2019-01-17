@@ -263,7 +263,7 @@ def game():
                 sleep(2)
                 if len(bot_cards) > 0:
                     if len(bot_cards) == 1:
-                        print("{} says: 'Uno!'".format(bot))
+                        print("{} says: 'Uno!'".format(bot_name))
 
                     if wild_color:
                         bot_card, status, wild_color= use_card(current_card, bot_cards, discard, wild_color)
@@ -284,7 +284,7 @@ def game():
                             draw_4 = True
 
                         if len(bot_cards) == 0:  # if the bot has no cards left it wins
-                            print("{} has won the game!".format(bot))
+                            print("{} has won the game!".format(bot_name))
                             break
                     else:  # if nothing happens, draw a card
                         print("{} drew a card.".format(bot_name))
