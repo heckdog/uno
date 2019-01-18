@@ -1,5 +1,5 @@
 # Python Uno
-It's a simple uno card game in Python. It's nothing special. Heck, as of writing this its nothing more than a virtual deck shuffler.
+It's a simple uno card game in Python. ~~It's nothing special. Heck, as of writing this its nothing more than a virtual deck shuffler.~~ Now its a card shuffler with cards that do things and if ur thing supports ANSI you also have colorful cards.
 
 ### LATEST UPDATES
 older updates can be found in the [wiki](https://github.com/Heckin-Doggo/uno/wiki/Update-Log)
