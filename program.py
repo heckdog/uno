@@ -1,6 +1,6 @@
 # another quality program
 # debug mode only shows number of bot cards and the change detector. turn off to reduce clutter.
-debug = True
+debug = False
 color_toggle = True
 
 # heckin-doggo github has the issues instead of here
@@ -145,6 +145,7 @@ def game():
                     deck = discard[:-2]  # all but top card
                     random.shuffle(deck)
                     new_card = deck.pop(0)
+                    print("Drew a {}.".format(color_card(new_card)))
                     player.hand.append(new_card)
 
             elif card_choice in player.hand:  # duh, gotta see if the card actually exists
@@ -236,7 +237,7 @@ def game():
         if len(player.hand) == 0:
             active = False
             print("You win! Congratulations!")
-            print(discard) # prints out entire game
+            # print(discard) # prints out entire game
             break
         elif len(player.hand) == 1:
             print("Uno!")
@@ -288,7 +289,11 @@ def game():
                             break
                     else:  # if nothing happens, draw a card
                         print("{} drew a card.".format(bot_name))
-                        bot_cards.append(deck.pop(0))
+                        if deck:
+                            bot_cards.append(deck.pop(0))
+                        else:
+                            reshuffle(discard, deck)
+                            bot_cards.append(deck.pop(0))
                 elif len(bot_cards) == 0:  # This shouldn't happen but if it does heres a solution
                     print("{} has won the game... but this text should never show up!".format(bot))
                     active = False
@@ -302,7 +307,7 @@ def game():
                     if deck:
                         bot_cards.append(deck.pop(0))
                     else:
-                        reshuffle(discard, deck)
+                        reshuffle(discard, deck)  # TODO: this is broken for some reason. either discard or deck is not the right value
                         bot_cards.append(deck.pop(0))
                     draw_4 = False
             elif draw_2:
@@ -346,10 +351,10 @@ def get_deck():
     # The below just creates the deck.
     for color in ["RED", "GREEN", "BLUE", "YELLOW"]:
         # Cards 0-9
-        for i in range(10):
+        for i in range(1): # TODO: SET BACK TO 10
             deck.append(color + " " + str(i))
         # Another set of 1-9
-        for i in range(1, 10):
+        for i in range(1, 2):  # TODO: SET THE 2 to 10
             deck.append(color + " " + str(i))
         # Action Cards
         deck.append(color + " REVERSE")
@@ -369,7 +374,6 @@ def get_deck():
 
 
 # "reshuffle" probably will break and be sad for anyone in a long game :(
-# edit: probably not tbh hasnt failed me yet.
 def reshuffle(discard, deck):
     for card in discard:
         if discard.index(card) != discard.index(discard[-1]):
