@@ -8,7 +8,7 @@ import random
 from time import sleep
 try:
     from colorama import init
-    init()
+    init(convert=True)  #who knows what this does
 except:
     print("ERROR: Colorama failed to load!")
 
