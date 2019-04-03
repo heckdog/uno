@@ -22,3 +22,6 @@ anyways:
 ## update 10 (1/17)
 * fixed player limits. no more playing against yourself
 * fixed bot names showing up as "0 drew a card" on certain occasions
+
+## update 11 (4/3)
+* updated README.md just to announce that this game is a lost cause. it functions alright but i dont give enough of a crap about it to continue with it. if i make any other change to python uno it will be in a new repo and completely redone.
